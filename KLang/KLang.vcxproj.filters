@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Runtime">
+      <UniqueIdentifier>{5fdd3a66-5a9f-4477-9765-54b6cb1f76bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Runtime\Structural">
+      <UniqueIdentifier>{64cb33c5-bb06-4171-a664-ad50dddbc4c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Helpers">
+      <UniqueIdentifier>{64ad08c4-47c5-420f-b2e2-eacc1006f1af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Helpers">
+      <UniqueIdentifier>{e95d663c-0ce6-4604-9df6-42be7046844f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Runtime">
+      <UniqueIdentifier>{6be92ae6-d489-42c0-bac9-b2e69495a94d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Runtime\Structural">
+      <UniqueIdentifier>{9cf79a69-3874-4cb5-8cd0-cccdf3aa32a5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Object.h">
+      <Filter>Header Files\Runtime\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="Type.h">
+      <Filter>Header Files\Runtime\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector.h">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="KVM.h">
+      <Filter>Header Files\Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="Method.h">
+      <Filter>Header Files\Runtime\Structural</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Program.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector.c">
+      <Filter>Source Files\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="KVM.c">
+      <Filter>Source Files\Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.c">
+      <Filter>Source Files\Runtime\Structural</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
