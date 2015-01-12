@@ -48,6 +48,9 @@
     <ClInclude Include="Method.h">
       <Filter>Header Files\Runtime\Structural</Filter>
     </ClInclude>
+    <ClInclude Include="FFI.h">
+      <Filter>Header Files\Runtime</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Program.c">
@@ -60,6 +63,15 @@
       <Filter>Source Files\Runtime</Filter>
     </ClCompile>
     <ClCompile Include="Object.c">
+      <Filter>Source Files\Runtime\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="FFI.c">
+      <Filter>Source Files\Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="Type.c">
+      <Filter>Source Files\Runtime\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="Method.c">
       <Filter>Source Files\Runtime\Structural</Filter>
     </ClCompile>
   </ItemGroup>

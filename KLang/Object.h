@@ -7,7 +7,6 @@
 // This struct is what is used in the virtual machine to store data.
 // On a 32bit system, the overhead of any given object will be 16 bytes.
 // On a 64bit system, the overhead of any given object will be 28 bytes.
-
 struct Object
 {
 	struct Type* Type; // The type that this object represents.
@@ -19,6 +18,6 @@ struct Object
 };
 
 struct Object Object_New(struct Type* type); // Instantiates an "Object" instance from a type definition.
-void Object_Destroy(struct Object* object); // Frees an instance of "Object"
+void Object_Destroy(struct Object* object); // Properly frees an instance of "Object"
 
 #endif
