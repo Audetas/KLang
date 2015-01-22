@@ -60,7 +60,8 @@ int KVM_Execute(struct Context* c, struct Object* t, struct Method* m)
 #endif
 
 	struct Object** locals = malloc(sizeof(struct Object*) * m->LocalSize);
-	struct Object** stack = (struct Object**)c->Stack.Storage;
+	//struct Object** stack = (struct Object**)c->Stack.Storage;
+	struct Vector* stack = &c->Stack;
 
 	for (int i = 0; i < m->LenOperations; i++)
 	{
@@ -71,7 +72,7 @@ int KVM_Execute(struct Context* c, struct Object* t, struct Method* m)
 				struct Object* o = malloc(sizeof(struct Object));
 				*o = Object_New(KVM_GetType(&c->KVM, "System.Char"));
 				o->BoxedValue = m->Operands[i];
-				stack[++c->sptr] = o;
+				Vector_Push(stack, o);
 				
 #if (_DEBUG)
 				printf("Pushed [Boxed]System.Char '%c' at offset %d.\n", (char)m->Operands[i], c->sptr);
@@ -84,20 +85,33 @@ int KVM_Execute(struct Context* c, struct Object* t, struct Method* m)
 				struct Object* o = malloc(sizeof(struct Object));
 				*o = Object_New(KVM_GetType(&c->KVM, "System.Int"));
 				o->BoxedValue = m->Operands[i];
-				stack[++c->sptr] = o;
+				Vector_Push(stack, o);
 				
 #if (_DEBUG)
-				printf("Pushed [Boxed]System.Int %d at offset %d.\n", (int)m->Operands[i], c->sptr);
+				printf("Pushed [Boxed]System.Int %d at offset %d.\n", (int)m->Operands[i], stack->Pos);
 #endif
 				break;
 			}
 			
 			case POP:
 			{
-				c->sptr--;
+				struct Object* poppedObject = Vector_Pop(stack);
 #if (_DEBUG)
-				printf("Popped reference to a %s off the stack.\n", stack[c->sptr + 1]->Type->Name);
+				printf("Popped reference to a %s off the stack.\n", poppedObject->Type->Name);
 #endif
+				break;
+			}
+			
+			case CALL_INSTANCE:
+			{
+				int returnPointer = stack->Pos;
+				int methodIndex = *(int*)m->Operands[i];
+				struct Object* callingObject = Vector_Pop(stack);
+				struct Method* method = Vector_Get(&callingObject->Type->Methods, methodIndex);
+
+				KVM_Execute(c, callingObject, method);
+				
+				stack->Pos = returnPointer + 1;
 				break;
 			}
 		}
@@ -148,9 +162,9 @@ struct Method* KVM_DefineMethod(struct KVM* kvm, char* typeName, struct Method* 
 
 struct Type* KVM_GetType(struct KVM* kvm, char* typeName)
 {
-	for (int i = 0; i < kvm->Types.Population; i++)
+	for (int i = 0; i < kvm->Types.Pos; i++)
 	{
-		struct Type* type = (struct Type*)kvm->Types.Storage[i];
+		struct Type* type = (struct Type*)kvm->Types.Data[i];
 
 		if (!strcmp(type->Name, typeName))
 			return type;

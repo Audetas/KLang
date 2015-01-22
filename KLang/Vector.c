@@ -6,9 +6,9 @@ struct Vector Vector_New(int size)
 {
 	struct Vector vector;
 
-	vector.Length = size;
-	vector.Population = 0;
-	vector.Storage = calloc(size, sizeof(void*));
+	vector.Size = size;
+	vector.Pos = 0;
+	vector.Data = calloc(size, sizeof(void*));
 	//vector.Storage = malloc(sizeof(void*) * size);
 
 	return vector;
@@ -16,26 +16,32 @@ struct Vector Vector_New(int size)
 
 void Vector_Destroy(struct Vector* vector) 
 {
-	free(vector->Storage);
+	free(vector->Data);
 	free(vector);
+}
+
+void* Vector_Top(struct Vector* vector)
+{
+	return vector->Data[vector->Pos];
 }
 
 void* Vector_Get(struct Vector* vector, int index) 
 {
-	if (index >= vector->Population || index < 0) 
+	/*
+	if (index >= vector->Pos || index < 0) 
 		return NULL;
-
-	return vector->Storage[index];
+	*/
+	return vector->Data[index];
 }
 
 void* Vector_Set(struct Vector* vector, int index, void* elem) 
 {
 	void* old_elem = NULL;
 
-	if (index < vector->Population && index >= 0)
+	if (index < vector->Pos && index >= 0)
 	{
-		old_elem = vector->Storage[index];
-		vector->Storage[index] = elem;
+		old_elem = vector->Data[index];
+		vector->Data[index] = elem;
 	}
 
 	return old_elem;
@@ -43,28 +49,28 @@ void* Vector_Set(struct Vector* vector, int index, void* elem)
 
 void Vector_Push(struct Vector* vector, void* elem) 
 {
-	vector->Storage[vector->Population++] = elem;
+	vector->Data[vector->Pos++] = elem;
 
-	if (vector->Population == vector->Length)
+	if (vector->Pos == vector->Size)
 		Vector_Resize(vector);
 }
 
 void* Vector_Pop(struct Vector* vector) 
 {
-	if (vector->Population == 0)
+	if (vector->Pos == 0)
 		return NULL;
 
-	void* elem = vector->Storage[--vector->Population];
+	void* elem = vector->Data[--vector->Pos];
 	//Vector_Resize(vector);
 	return elem;
 }
 
 void Vector_Remove(struct Vector* vector, int amount)
 {
-	if (vector->Population - amount < 0)
-		vector->Population = 0;
+	if (vector->Pos - amount < 0)
+		vector->Pos = 0;
 	else
-		vector->Population -= amount;
+		vector->Pos -= amount;
 }
 
 void Vector_Resize(struct Vector* vector) 
@@ -72,15 +78,15 @@ void Vector_Resize(struct Vector* vector)
 	void* new_storage;
 	int new_length;
 
-	if (vector->Population == vector->Length) 
+	if (vector->Pos == vector->Size) 
 	{
-		new_length = vector->Length * 2;
-		new_storage = realloc(vector->Storage, sizeof(void*) * vector->Length * 2);
+		new_length = vector->Size * 2;
+		new_storage = realloc(vector->Data, sizeof(void*) * vector->Size * 2);
 	}
-	else if ((float)vector->Population / (float)vector->Length < 0.25)
+	else if ((float)vector->Pos / (float)vector->Size < 0.25)
 	{
-		new_length = vector->Length / 2;
-		new_storage = realloc(vector->Storage, sizeof(void*) * vector->Length / 2);
+		new_length = vector->Size / 2;
+		new_storage = realloc(vector->Data, sizeof(void*) * vector->Size / 2);
 	}
 	else
 		return;
@@ -93,6 +99,6 @@ void Vector_Resize(struct Vector* vector)
 		exit(-1);
 	}
 
-	vector->Storage = new_storage;
-	vector->Length = new_length;
+	vector->Data = new_storage;
+	vector->Size = new_length;
 }

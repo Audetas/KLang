@@ -10,5 +10,6 @@
 int MapExternFunc(struct KVM* kvm, char* libName, char* functionName);
 
 struct Object MarshalCType(struct KVM* kvm, void* object, char* type);
+void ExternCall(struct Context* context, char* libName, char* functionName, char* cType);
 
 #endif

@@ -5,7 +5,7 @@ struct Object Object_New(struct Type* type)
 {
 	struct Object object;
 	object.Type = type; // The object instance will carry a reference to its definition
-	object.Members = malloc(sizeof(struct Object) * type->Members.Length); // Sized to the length of known members for the type.
+	object.Members = malloc(sizeof(struct Object) * type->Members.Size); // Sized to the length of known members for the type.
 
 	return object;
 }

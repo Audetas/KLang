@@ -23,9 +23,9 @@ void Type_Destroy(struct Type* type)
 
 struct Method* Type_FindMethod(struct Type* type, char* methodName)
 {
-	for (int i = 0; i < type->Methods.Population; i++)
+	for (int i = 0; i < type->Methods.Pos; i++)
 	{
-		struct Method* method = (struct Method*)type->Methods.Storage[i];
+		struct Method* method = (struct Method*)type->Methods.Data[i];
 
 		if (!strcmp(method->Name, methodName))
 			return method;
@@ -36,9 +36,9 @@ struct Method* Type_FindMethod(struct Type* type, char* methodName)
 
 int Type_FindMember(struct Type* type, char* memberName)
 {
-	for (int i = 0; i < type->Members.Population; i++)
+	for (int i = 0; i < type->Members.Pos; i++)
 	{
-		char* member = (char*)type->Members.Storage[i];
+		char* member = (char*)type->Members.Data[i];
 
 		if (!strcmp(member, memberName))
 			return i;
