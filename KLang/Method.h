@@ -15,5 +15,6 @@ struct Method
 };
 
 struct Method Method_New(char* name, int localSize, int numOperations);
+struct Method* Method_Alloc(char* name, int localSize, int numOperations);
 
 #endif

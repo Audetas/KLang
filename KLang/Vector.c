@@ -9,7 +9,14 @@ struct Vector Vector_New(int size)
 	vector.Size = size;
 	vector.Pos = 0;
 	vector.Data = calloc(size, sizeof(void*));
-	//vector.Storage = malloc(sizeof(void*) * size);
+
+	return vector;
+}
+
+struct Vector* Vector_Alloc(int size)
+{
+	struct Vector* vector = malloc(sizeof(struct Vector));
+	*vector = Vector_New(size);
 
 	return vector;
 }
@@ -31,6 +38,10 @@ void* Vector_Get(struct Vector* vector, int index)
 	if (index >= vector->Pos || index < 0) 
 		return NULL;
 	*/
+
+	if (index > vector->Size)
+		return NULL;
+
 	return vector->Data[index];
 }
 
@@ -51,7 +62,7 @@ void Vector_Push(struct Vector* vector, void* elem)
 {
 	vector->Data[vector->Pos++] = elem;
 
-	if (vector->Pos == vector->Size)
+	if (vector->Pos + 2 > vector->Size)
 		Vector_Resize(vector);
 }
 
@@ -95,7 +106,7 @@ void Vector_Resize(struct Vector* vector)
 	{
 		Vector_Destroy(vector);
 		printf("Out of memory. Vector could not be expanded.");
-		getch();
+		//TODO: Find a better way to exit.
 		exit(-1);
 	}
 

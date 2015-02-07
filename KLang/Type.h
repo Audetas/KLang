@@ -10,11 +10,12 @@ struct Type
 {
 	char* Name; //Example: System.Int
 
-	struct Vector Methods; // Holds instances of struct "Method" representing all known methods for the type.
+	struct Vector Methods; // Holds instances of struct Method representing all known methods for the type.
 	struct Vector Members; // Holds the type's member names. Used strictly for reflection.
 };
 
-struct Type Type_New(char* typeName); // Create a new properly initialized instance of "Type".
+struct Type Type_New(char* typeName); // Create a new properly initialized instance of Type.
+struct Type* Type_Alloc(char* typeName); // Create a new properly initialized instance of Type on the heap.
 void Type_Destroy(struct Type* type); // Properly free an instance of "Type".
 
 struct Method* Type_FindMethod(struct Type* type, char* methodName); // Get the pointer to a method definition defined in the type by its name.

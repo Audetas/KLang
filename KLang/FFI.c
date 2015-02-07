@@ -42,9 +42,9 @@ struct Object MarshalCType(struct KVM* kvm, void* data, char* type) // TODO: Fin
 	
 	// We are manually checking characters for more speed.
 	if (type[0] == 'c') // char
-		object = Object_New(KVM_GetType(kvm, "System.Char"));
+		object = Object_New(KVM_GetType(kvm, "char"));
 	else if (type[0] == 'i') // int
-		object = Object_New(KVM_GetType(kvm, "System.Int"));
+		object = Object_New(KVM_GetType(kvm, "int"));
 
 	object.BoxedValue = data;
 	return object;

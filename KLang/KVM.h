@@ -15,6 +15,7 @@ enum OP // Enumeration of all possible operations that the interpreter can compu
 	PUSH_T,
 
 	POP,
+	CALL_LOCAL,
 	CALL_INSTANCE,
 	CALL_STATIC,
 	CALL_VIRTUAL,
@@ -26,9 +27,6 @@ struct KVM
 {
 	struct Vector Types; // Contains the corresponding struct "Type" instances for all known types.
 	struct Vector ExternLibCache; // Contains the modules for all loaded external libraries.
-
-	struct Vector Heap; // To be used later, as memory pool instead of calling malloc.
-	struct Vector HeapAllocations; // To be used later, to reference occupied slots on the heap.
 };
 
 // Context represents a thread and holds data required for execution like the stack.
@@ -39,10 +37,12 @@ struct Context
 	int sptr; // Stack pointer.
 };
 
-struct KVM KVM_New(); // Create an instance of a KVM
+struct KVM KVM_New(); // Create an instance of a KVM.
+struct KVM* KVM_Alloc(); // Create an instance of a KVM on the heap.
 void KVM_Destroy(struct KVM* kvm); // Properly free an instance of a KVM.
 
 struct Context Context_New(struct KVM* kvm); // Create an instance of a Context.
+struct Context* Context_Alloc(struct KVM* kvm); // Create an instance of a Context on the heap.
 void Context_Destroy(struct Context* context); // Properly free an instance of a Context.
 
 int KVM_Execute(struct Context* c, struct Object* t, struct Method* m); // Executes the given method under the given context (object) as the caller.

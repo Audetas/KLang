@@ -10,6 +10,14 @@ struct Object Object_New(struct Type* type)
 	return object;
 }
 
+struct Object* Object_Alloc(struct Type* type)
+{
+	struct Object* object = malloc(sizeof(struct Object));
+	*object = Object_New(type);
+
+	return object;
+}
+
 void Object_Destroy(struct Object* object)
 {
 	if (object->BoxedValue != NULL) // Not all object instances box a value

@@ -51,6 +51,9 @@
     <ClInclude Include="FFI.h">
       <Filter>Header Files\Runtime</Filter>
     </ClInclude>
+    <ClInclude Include="String.h">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Program.c">
@@ -73,6 +76,9 @@
     </ClCompile>
     <ClCompile Include="Method.c">
       <Filter>Source Files\Runtime\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="String.c">
+      <Filter>Source Files\Helpers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 #include "Type.h"
 #include "Vector.h"
 #include "Method.h"
+#include <string.h>
 #include <stdlib.h>
 
 struct Type Type_New(char* typeName)

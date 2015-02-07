@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "KVM.h"
 #include "Object.h"
@@ -12,9 +13,19 @@ struct KVM KVM_New()
 	kvm.Types = Vector_New(10);
 	kvm.ExternLibCache = Vector_New(1);
 
+	KVM_DefineType(&kvm, "static"); // static object is used as a container for static methods and members.
+
 #if (_DEBUG)
 	printf("[i] Initialized a new virtual machine.\n");
 #endif
+
+	return kvm;
+}
+
+struct KVM* KVM_Alloc()
+{
+	struct KVM* kvm = malloc(sizeof(struct KVM));
+	*kvm = KVM_New();
 
 	return kvm;
 }
@@ -45,13 +56,19 @@ struct Context Context_New(struct KVM* kvm)
 	return c;
 }
 
+struct Context* Context_Alloc(struct KVM* kvm)
+{
+	struct Context* context = malloc(sizeof(struct Context));
+	*context = Context_New(kvm);
+
+	return context;
+}
+
 void Context_Destroy(struct Context* context)
 {
 	Vector_Destroy(&context->Stack);
 	free(context);
 }
-
-
 
 int KVM_Execute(struct Context* c, struct Object* t, struct Method* m)
 {
@@ -70,12 +87,12 @@ int KVM_Execute(struct Context* c, struct Object* t, struct Method* m)
 			case PUSH_CHAR:
 			{
 				struct Object* o = malloc(sizeof(struct Object));
-				*o = Object_New(KVM_GetType(&c->KVM, "System.Char"));
+				*o = Object_New(KVM_GetType(c->KVM, "char"));
 				o->BoxedValue = m->Operands[i];
 				Vector_Push(stack, o);
 				
 #if (_DEBUG)
-				printf("Pushed [Boxed]System.Char '%c' at offset %d.\n", (char)m->Operands[i], c->sptr);
+				printf("[i] Pushed [Boxed]char '%c' at offset %d.\n", (char)m->Operands[i], c->sptr);
 #endif
 				break;
 			}
@@ -83,12 +100,13 @@ int KVM_Execute(struct Context* c, struct Object* t, struct Method* m)
 			case PUSH_INT:
 			{
 				struct Object* o = malloc(sizeof(struct Object));
-				*o = Object_New(KVM_GetType(&c->KVM, "System.Int"));
+				struct Type* type = KVM_GetType(c->KVM, "int");
+				*o = Object_New(type);
 				o->BoxedValue = m->Operands[i];
 				Vector_Push(stack, o);
 				
 #if (_DEBUG)
-				printf("Pushed [Boxed]System.Int %d at offset %d.\n", (int)m->Operands[i], stack->Pos);
+				printf("[i] Pushed [Boxed]int %d at offset %d.\n", (int)m->Operands[i], stack->Pos);
 #endif
 				break;
 			}
@@ -97,8 +115,20 @@ int KVM_Execute(struct Context* c, struct Object* t, struct Method* m)
 			{
 				struct Object* poppedObject = Vector_Pop(stack);
 #if (_DEBUG)
-				printf("Popped reference to a %s off the stack.\n", poppedObject->Type->Name);
+				printf("[i] Popped reference to a %s off the stack.\n", poppedObject->Type->Name);
 #endif
+				break;
+			}
+
+			case CALL_LOCAL:
+			{
+				int returnPointer = stack->Pos;
+				int methodIndex = (int)m->Operands[i];
+				struct Method* method = Vector_Get(&t->Type->Methods, methodIndex);
+
+				KVM_Execute(c, t, method);
+
+				stack->Pos = returnPointer + 1;
 				break;
 			}
 			
@@ -120,8 +150,6 @@ int KVM_Execute(struct Context* c, struct Object* t, struct Method* m)
 	return 0;
 }
 
-
-
 struct Type* KVM_DefineType(struct KVM* kvm, char* typeName)
 {
 	struct Type* type = malloc(sizeof(struct Type));
@@ -138,7 +166,14 @@ struct Type* KVM_DefineType(struct KVM* kvm, char* typeName)
 
 char* KVM_DefineMember(struct KVM* kvm, char* typeName, char* memberName)
 {
-	Vector_Push(&KVM_GetType(kvm, typeName)->Members, memberName);
+	struct Type* type = KVM_GetType(kvm, typeName);
+
+	if (type == NULL)
+	{
+		printf("[ERR] Unable to define member %s for type %s, it does not exist.\n", memberName, typeName);
+		return memberName;
+	}
+	Vector_Push(&type->Members, memberName);
 
 #if (_DEBUG)
 	printf("[i] Defined member %s for type %s.\n.", memberName, typeName);
@@ -149,7 +184,16 @@ char* KVM_DefineMember(struct KVM* kvm, char* typeName, char* memberName)
 
 struct Method* KVM_DefineMethod(struct KVM* kvm, char* typeName, struct Method* method)
 {
-	Vector_Push(&KVM_GetType(kvm, typeName)->Methods, method);
+
+	struct Type* type = KVM_GetType(kvm, typeName);
+
+	if (type == NULL)
+	{
+		printf("[ERR] Unable to define method %s for type %s, it does not exist.\n", method->Name, typeName);
+		return method;
+	}
+
+	Vector_Push(&type->Methods, method);
 
 #if (_DEBUG)
 	printf("[i] Defined method %s for type %s.\n", method->Name, typeName);
@@ -157,8 +201,6 @@ struct Method* KVM_DefineMethod(struct KVM* kvm, char* typeName, struct Method* 
 
 	return method;
 }
-
-
 
 struct Type* KVM_GetType(struct KVM* kvm, char* typeName)
 {
