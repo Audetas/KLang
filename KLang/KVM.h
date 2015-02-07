@@ -4,6 +4,7 @@
 #include "Type.h"
 #include "Method.h"
 #include "Vector.h"
+#include "Context.h"
 
 enum OP // Enumeration of all possible operations that the interpreter can compute.
 {
@@ -12,14 +13,22 @@ enum OP // Enumeration of all possible operations that the interpreter can compu
 	PUSH_FLOAT,
 	PUSH_DOUBLE,
 	PUSH_STRING,
-	PUSH_T,
-
 	POP,
+
+	JMP_TO,
+	JMP_REL,
+
 	CALL_LOCAL,
 	CALL_INSTANCE,
 	CALL_STATIC,
 	CALL_VIRTUAL,
-	CALL_EXTERN
+	CALL_EXTERN,
+
+	CMP_REF,
+	CMP_BOX,
+	NOT,
+
+	DEBUG_PRINT_INT
 };
 
 // KVM is a manifestation of the main components, that together, contain and execute the program.
@@ -29,21 +38,9 @@ struct KVM
 	struct Vector ExternLibCache; // Contains the modules for all loaded external libraries.
 };
 
-// Context represents a thread and holds data required for execution like the stack.
-struct Context
-{
-	struct KVM* KVM; // Parent virtual machine.
-	struct Vector Stack; // Stack for the thread.
-	int sptr; // Stack pointer.
-};
-
 struct KVM KVM_New(); // Create an instance of a KVM.
 struct KVM* KVM_Alloc(); // Create an instance of a KVM on the heap.
 void KVM_Destroy(struct KVM* kvm); // Properly free an instance of a KVM.
-
-struct Context Context_New(struct KVM* kvm); // Create an instance of a Context.
-struct Context* Context_Alloc(struct KVM* kvm); // Create an instance of a Context on the heap.
-void Context_Destroy(struct Context* context); // Properly free an instance of a Context.
 
 int KVM_Execute(struct Context* c, struct Object* t, struct Method* m); // Executes the given method under the given context (object) as the caller.
 

@@ -29,7 +29,7 @@ void Vector_Destroy(struct Vector* vector)
 
 void* Vector_Top(struct Vector* vector)
 {
-	return vector->Data[vector->Pos];
+	return vector->Data[vector->Pos - 1];
 }
 
 void* Vector_Get(struct Vector* vector, int index) 

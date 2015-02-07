@@ -54,6 +54,12 @@
     <ClInclude Include="String.h">
       <Filter>Header Files\Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="Context.h">
+      <Filter>Header Files\Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="Allocator.h">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Program.c">
@@ -78,6 +84,12 @@
       <Filter>Source Files\Runtime\Structural</Filter>
     </ClCompile>
     <ClCompile Include="String.c">
+      <Filter>Source Files\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="Context.c">
+      <Filter>Source Files\Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="Allocator.c">
       <Filter>Source Files\Helpers</Filter>
     </ClCompile>
   </ItemGroup>

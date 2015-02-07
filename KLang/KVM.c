@@ -5,6 +5,8 @@
 #include "Object.h"
 #include "Method.h"
 #include "Vector.h"
+#include "Context.h"
+#include "Allocator.h"
 
 
 struct KVM KVM_New()
@@ -42,34 +44,6 @@ void KVM_Destroy(struct KVM* kvm)
 	free(kvm);
 }
 
-struct Context Context_New(struct KVM* kvm)
-{
-	struct Context c;
-	c.KVM = kvm;
-	c.Stack = Vector_New(32);
-	c.sptr = -1;
-
-#if (_DEBUG)
-	printf("[i] Created a new execution context.\n");
-#endif
-
-	return c;
-}
-
-struct Context* Context_Alloc(struct KVM* kvm)
-{
-	struct Context* context = malloc(sizeof(struct Context));
-	*context = Context_New(kvm);
-
-	return context;
-}
-
-void Context_Destroy(struct Context* context)
-{
-	Vector_Destroy(&context->Stack);
-	free(context);
-}
-
 int KVM_Execute(struct Context* c, struct Object* t, struct Method* m)
 {
 #if (_DEBUG)
@@ -77,7 +51,6 @@ int KVM_Execute(struct Context* c, struct Object* t, struct Method* m)
 #endif
 
 	struct Object** locals = malloc(sizeof(struct Object*) * m->LocalSize);
-	//struct Object** stack = (struct Object**)c->Stack.Storage;
 	struct Vector* stack = &c->Stack;
 
 	for (int i = 0; i < m->LenOperations; i++)
@@ -86,28 +59,46 @@ int KVM_Execute(struct Context* c, struct Object* t, struct Method* m)
 		{
 			case PUSH_CHAR:
 			{
-				struct Object* o = malloc(sizeof(struct Object));
-				*o = Object_New(KVM_GetType(c->KVM, "char"));
-				o->BoxedValue = m->Operands[i];
-				Vector_Push(stack, o);
+				struct Type* type = KVM_GetType(c->KVM, "char");
+				struct Object* object = Object_Box_Alloc(
+					type,
+					m->Operands[i],
+					sizeof(char));
+				Vector_Push(stack, object);
 				
 #if (_DEBUG)
-				printf("[i] Pushed [Boxed]char '%c' at offset %d.\n", (char)m->Operands[i], c->sptr);
+				printf("[i] Pushed [Boxed]char '%c' at offset %d.\n", *(char*)m->Operands[i], stack->Pos);
 #endif
 				break;
 			}
 			
 			case PUSH_INT:
 			{
-				struct Object* o = malloc(sizeof(struct Object));
 				struct Type* type = KVM_GetType(c->KVM, "int");
-				*o = Object_New(type);
-				o->BoxedValue = m->Operands[i];
-				Vector_Push(stack, o);
+				struct Object* object = Object_Box_Alloc(
+					type, 
+					m->Operands[i],
+					sizeof(int));
+				
+				Vector_Push(stack, object);
 				
 #if (_DEBUG)
-				printf("[i] Pushed [Boxed]int %d at offset %d.\n", (int)m->Operands[i], stack->Pos);
+				printf("[i] Pushed [Boxed]int %d at offset %d.\n", *(int*)m->Operands[i], stack->Pos);
 #endif
+				break;
+			}
+
+			case JMP_TO:
+			{
+				i = (int)m->Operands[i];
+
+				break;
+			}
+
+			case JMP_REL:
+			{
+				i += (int)m->Operands[i];
+
 				break;
 			}
 			
@@ -123,7 +114,7 @@ int KVM_Execute(struct Context* c, struct Object* t, struct Method* m)
 			case CALL_LOCAL:
 			{
 				int returnPointer = stack->Pos;
-				int methodIndex = (int)m->Operands[i];
+				int methodIndex = *(int*)m->Operands[i];
 				struct Method* method = Vector_Get(&t->Type->Methods, methodIndex);
 
 				KVM_Execute(c, t, method);
@@ -135,13 +126,67 @@ int KVM_Execute(struct Context* c, struct Object* t, struct Method* m)
 			case CALL_INSTANCE:
 			{
 				int returnPointer = stack->Pos;
-				int methodIndex = *(int*)m->Operands[i];
-				struct Object* callingObject = Vector_Pop(stack);
+				int methodIndex = (int)m->Operands[i];
+				struct Object* callingObject = Vector_Pop(stack); 
 				struct Method* method = Vector_Get(&callingObject->Type->Methods, methodIndex);
 
 				KVM_Execute(c, callingObject, method);
 				
 				stack->Pos = returnPointer + 1;
+				break;
+			}
+
+			case CMP_REF:
+			{
+				struct Object* object1 = Vector_Pop(stack);
+				struct Object* object2 = Vector_Pop(stack);
+
+				int* eval = Alloc_int((int)(&object1 == &object2));
+				struct Object* result = Object_Box_Alloc(
+					KVM_GetType(c->KVM, "int"),
+					(void*)eval, sizeof(int));
+
+				break;
+			}
+
+			case CMP_BOX:
+			{
+				struct Object* object1 = Vector_Pop(stack);
+				struct Object* object2 = Vector_Pop(stack);
+
+				int* eval;
+
+				if (object1->BoxedValueSize != object2->BoxedValueSize)
+					eval = Alloc_int(0);
+				else
+					eval = Alloc_int(
+						!memcmp(
+							object1->BoxedValue,
+							object2->BoxedValue,
+							object1->BoxedValueSize));
+
+				struct Object* result = Object_Box_Alloc(
+					KVM_GetType(c->KVM, "int"),
+					eval, sizeof(int));
+
+				Vector_Push(stack, result);
+				break;
+			}
+
+			case NOT:
+			{
+				struct Object* object = Vector_Top(stack);
+				int value = *(int*)object->BoxedValue;
+				*(int*)object->BoxedValue = !value;
+
+				break;
+			}
+
+			case DEBUG_PRINT_INT:
+			{
+				struct Object* top = Vector_Top(stack);
+				printf("[d] Stack top <int>: %d.\n", *(int*)top->BoxedValue);
+
 				break;
 			}
 		}

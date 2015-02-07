@@ -18,6 +18,15 @@ struct Object* Object_Alloc(struct Type* type)
 	return object;
 }
 
+struct Object* Object_Box_Alloc(struct Type* type, void* value, int lenValue)
+{
+	struct Object* object = Object_Alloc(type);
+	object->BoxedValue = value;
+	object->BoxedValueSize = lenValue;
+
+	return object;
+}
+
 void Object_Destroy(struct Object* object)
 {
 	if (object->BoxedValue != NULL) // Not all object instances box a value

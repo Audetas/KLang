@@ -1,11 +1,10 @@
 #ifndef ALLOCATOR_H
 #define ALLOCATOR_H
 
-#include "KVM.h"
-#include "Method.h"
-#include "Object.h"
-
-struct KVM* Alloc_KVM();
-struct Object* Alloc_Object(struct Type* type);
+char* Alloc_char(char value);
+int* Alloc_int(int value);
+float* Alloc_float(float value);
+double* Alloc_double(double value);
+char* Alloc_cstring(char* value);
 
 #endif
